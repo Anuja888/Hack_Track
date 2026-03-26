@@ -1,5 +1,14 @@
 // --- STATE & MOCK DATA ---
 const STUDENT_DB = {
+    // 1st Year (2025 Batch)
+    "1602-25-737-001": "AARAV REDDY KOTHAPALLI", "1602-25-737-002": "ANANYA SREE GUDIPATI", "1602-25-737-003": "ABHINAV KUMAR REDDY",
+    "1602-25-737-004": "AMRUTHA LAKSHMI PONNALA", "1602-25-737-005": "ARJUN VARMA THOTA",
+    "1602-25-737-006": "BHAVYA SRI MANDADI", "1602-25-737-007": "CHANDANA REDDY KASIREDDY", "1602-25-737-008": "DARSHAN KUMAR YADAV",
+    "1602-25-737-009": "DIVYA SAI NALLAGATLA", "1602-25-737-010": "DHEERAJ REDDY BANDI",
+    "1602-25-737-011": "ESHWAR SAI GADDAM", "1602-25-737-012": "FARHAN AHMED SHAIK", "1602-25-737-013": "GAYATHRI DEVI KALYAN",
+    "1602-25-737-014": "HARSHITH KUMAR JONNALAGADDA", "1602-25-737-015": "HIMA BINDU VEMULA",
+    
+    // 2nd Year (2024 Batch)
     "1602-24-737-001": "AKSHAYA BHOOMIREDDY", "1602-24-737-002": "AKSHITH RAJ JAGGAIAH GARI", "1602-24-737-003": "AKULA SATHWIK",
     "1602-24-737-004": "ANUJA KUCHIPUDI", "1602-24-737-005": "ANUSH KOMURAVELLI", "1602-24-737-006": "ASHRITA MANDADI",
     "1602-24-737-007": "ASHRITH KAVETI", "1602-24-737-008": "AVANEESH NAGLOORI", "1602-24-737-009": "BALU NAYAK ESLAVATH",
@@ -49,6 +58,24 @@ let activeRoleTab = 'student';
 let currentView = 'login'; 
 let studentActiveTab = 'dashboard';
 let coordActiveTab = 'inbox';
+let attendanceActiveTab = 'overview';
+
+// User credentials store (default password: vce for all)
+const USER_CREDENTIALS = {
+    // HOD - Only Ram Mohan Rao can access
+    hod: {
+        username: 'Ram Mohan Rao',
+        password: 'vce'
+    },
+    // Coordinator credentials
+    coordinator: {
+        password: 'vce'
+    },
+    // Attendance Manager credentials
+    attendance: {
+        password: 'vce'
+    }
+};
 
 // --- UTILS ---
 function showToast(message, type = 'success') {
@@ -70,6 +97,29 @@ function validateRollNumber(roll) {
 
 function getStudentName(roll) {
     return STUDENT_DB[roll] || "Student User";
+}
+
+function getYearFromRoll(roll) {
+    // Extract the batch year from roll number (e.g., 1602-24-737-001 -> 24)
+    const parts = roll.split('-');
+    if (parts.length >= 2) {
+        const batchYear = parseInt(parts[1]);
+        
+        // Year mapping based on batch:
+        // 25 -> 1st Year
+        // 24 -> 2nd Year
+        // 23 -> 3rd Year
+        // 22 -> 4th Year
+        const yearMap = {
+            25: '1st Year',
+            24: '2nd Year',
+            23: '3rd Year',
+            22: '4th Year'
+        };
+        
+        return yearMap[batchYear] || 'Unknown';
+    }
+    return 'Unknown';
 }
 
 function formatDate(dateString) {
@@ -124,16 +174,13 @@ function render() {
             <nav class="navbar">
                 <div class="nav-brand">
                     <i class='bx bx-code-block text-gradient'></i>
-                    <span>HackTrack <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); letter-spacing: 1px;">| VASAVI COLLEGE OF ENGINEERING (VCE)</span></span>
+                    <span>HackTrack <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); letter-spacing: 1px;">| VCE</span></span>
                 </div>
                 <div class="nav-profile">
-                    <span class="d-flex align-center gap-2">
-                        <i class='bx bx-user-circle' style="font-size:1.5rem"></i> 
-                        <div class="d-flex flex-column text-right">
-                           <span style="font-weight:600; font-size: 0.9rem;">${currentUser.name}</span>
-                           <span style="font-size: 0.75rem; color: var(--text-muted)">${currentUser.role.toUpperCase()}</span>
-                        </div>
-                    </span>
+                    <div class="nav-user-info">
+                        <span class="nav-user-name">${currentUser.name}</span>
+                        <span class="nav-user-role">${currentUser.role.toUpperCase()}</span>
+                    </div>
                     <button class="logout-btn" onclick="logout()">Logout</button>
                 </div>
             </nav>
@@ -145,6 +192,7 @@ function render() {
         if (currentUser.role === 'student') mainContainer.innerHTML = StudentDashboardView();
         else if (currentUser.role === 'coordinator') mainContainer.innerHTML = CoordinatorDashboardView();
         else if (currentUser.role === 'hod') mainContainer.innerHTML = HODDashboardView();
+        else if (currentUser.role === 'attendance') mainContainer.innerHTML = AttendanceManagerDashboardView();
     }
 }
 
@@ -154,14 +202,39 @@ function login(role, username, password) {
             showToast('Invalid Hall Ticket. Format: 1602-XX-XXX-XXX', 'error');
             return;
         }
+        // Students don't need password validation
         currentUser = { role: 'student', name: getStudentName(username), roll: username };
     } else {
-        // Coordinator and HOD login exactly by their entered username. 
+        // Validate username
         if (!username.trim()) {
             showToast('Username cannot be empty', 'error');
             return;
         }
-        currentUser = { role: role, name: username };
+        
+        // HOD - Only Ram Mohan Rao can access with password 'vce'
+        if (role === 'hod') {
+            if (username !== 'Ram Mohan Rao' || password !== 'vce') {
+                showToast('Invalid HOD credentials. Only Ram Mohan Rao has HOD access.', 'error');
+                return;
+            }
+            currentUser = { role: 'hod', name: 'Ram Mohan Rao' };
+        }
+        // Coordinator - Default password 'vce'
+        else if (role === 'coordinator') {
+            if (password !== 'vce') {
+                showToast('Invalid password. Default password is: vce', 'error');
+                return;
+            }
+            currentUser = { role: 'coordinator', name: username };
+        }
+        // Attendance Manager - Default password 'vce'
+        else if (role === 'attendance') {
+            if (password !== 'vce') {
+                showToast('Invalid password. Default password is: vce', 'error');
+                return;
+            }
+            currentUser = { role: 'attendance', name: username };
+        }
     }
     
     currentView = 'dashboard';
@@ -193,16 +266,17 @@ function LoginView() {
                     <button class="role-btn ${activeRoleTab === 'student' ? 'active' : ''}" data-role="student">Student</button>
                     <button class="role-btn ${activeRoleTab === 'coordinator' ? 'active' : ''}" data-role="coordinator">Coordinator</button>
                     <button class="role-btn ${activeRoleTab === 'hod' ? 'active' : ''}" data-role="hod">HOD</button>
+                    <button class="role-btn ${activeRoleTab === 'attendance' ? 'active' : ''}" data-role="attendance">Attendance Manager</button>
                 </div>
                 <form id="login-form">
                     <div class="form-group">
                         <label>${activeRoleTab === 'student' ? 'Hall Ticket Number' : 'Username'}</label>
-                        <input type="text" id="username" class="form-control" placeholder="${activeRoleTab === 'student' ? 'e.g. 1602-24-737-004' : 'Enter your official username'}" required>
+                        <input type="text" id="username" class="form-control" placeholder="${activeRoleTab === 'student' ? '1602-XX-XXX-XXX' : 'Enter your official username'}" required>
                          ${activeRoleTab === 'student' ? `<small style="color:var(--text-muted); font-size: 0.75rem; margin-top: 5px; display: block;">Format: 1602-XX-XXX-XXX</small>` : ''}
                     </div>
                     <div class="form-group">
                         <label>Password</label>
-                        <input type="password" id="password" class="form-control" placeholder="Enter password (any)" required>
+                        <input type="password" id="password" class="form-control" placeholder="Enter password" required>
                     </div>
                     <button type="submit" class="btn-primary mt-4">
                         Login <i class='bx bx-right-arrow-alt'></i>
@@ -626,6 +700,7 @@ function CoordinatorDashboardView() {
                 <td>${formatDate(r.date)}</td>
                 <td>
                     <div class="d-flex flex-column gap-2">
+                        <button class="btn-secondary w-100 py-2" style="border-radius: 4px;" onclick="viewRequestLetter(${r.id})"><i class='bx bx-file'></i> View Letter</button>
                         <button class="btn-primary w-100 py-2" style="background:var(--success); border-radius: 4px;" onclick="updateStatus(${r.id}, 'Approved')"><i class='bx bx-check'></i> Approve</button>
                         <button class="w-100 py-2" style="background:transparent; border: 1px solid var(--danger); color: var(--danger); border-radius: 4px; cursor: pointer;" onclick="updateStatus(${r.id}, 'Rejected')"><i class='bx bx-x'></i> Reject</button>
                     </div>
@@ -726,10 +801,11 @@ function CoordinatorDashboardView() {
         `;
     } else if (coordActiveTab === 'leaderboard') {
         const board = getLeaderboard();
+        
         const rows = board.map((u, i) => `
-            <tr style="${i===0 ? 'background: rgba(210,153,34,0.1)' : ''}">
-                <td><strong style="${i===0?'color:var(--warning)':''}">${i+1}</strong></td>
-                <td><strong>${u.name}</strong><br><small class="text-muted">${u.roll}</small></td>
+            <tr>
+                <td><strong>${i+1}</strong></td>
+                <td><span class="text-primary" style="font-family: monospace; font-weight: bold;">${u.roll}</span><br><small class="text-muted">${u.name}</small></td>
                 <td><span style="font-size:1.5rem; font-weight:bold; color:var(--primary)">${u.points}</span></td>
                 <td>${u.badges.map(b => `<span class="badge" title="${b.name}" style="background:transparent; border:1px solid ${b.color}; color:${b.color}; margin-right:5px;"><i class='bx ${b.icon}'></i></span>`).join('')}</td>
             </tr>
@@ -740,7 +816,7 @@ function CoordinatorDashboardView() {
                 <h3 class="mb-4"><i class='bx bx-trophy text-warning'></i> College Hackathon Leaderboard</h3>
                 <div class="table-responsive">
                     <table class="table">
-                        <thead><tr><th>Rank</th><th>Student</th><th>Total Score</th><th>Badges</th></tr></thead>
+                        <thead><tr><th>Rank</th><th>Roll Number</th><th>Total Score</th><th>Badges</th></tr></thead>
                         <tbody>${rows}</tbody>
                     </table>
                 </div>
@@ -767,7 +843,6 @@ function CoordinatorDashboardView() {
         <!-- Dispatch Modal -->
         <div class="modal-overlay" id="dispatch-modal">
             <div class="modal-content">
-                ... (same dispatch modal) ...
                 <div class="modal-header">
                     <h3>Dispatch Report to HOD</h3>
                     <button class="modal-close" onclick="closeModal('dispatch-modal')"><i class='bx bx-x'></i></button>
@@ -775,6 +850,19 @@ function CoordinatorDashboardView() {
                 <div class="modal-body">
                     <p class="mb-3 text-muted">A consolidated performance report will be forwarded to the Head of Department.</p>
                     <button class="btn-primary w-100" onclick="sendToHOD()"><i class='bx bxl-telegram'></i> Confirm Institutional Dispatch</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Coordinator Letter View Modal -->
+        <div class="modal-overlay" id="coord-letter-modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3><i class='bx bx-file'></i> Student Request Letter</h3>
+                    <button class="modal-close" onclick="closeModal('coord-letter-modal')"><i class='bx bx-x'></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="letter-preview" id="coord-letter-content" style="max-height: 60vh; overflow-y: auto;"></div>
                 </div>
             </div>
         </div>
@@ -793,6 +881,39 @@ function updateFilters() {
 function sendToHOD() {
     showToast('Weekly Analytics Report dispatched to HOD dashboard!', 'success');
     closeModal('dispatch-modal');
+}
+
+// View Request Letter Modal
+let currentViewRequestId = null;
+
+function viewRequestLetter(id) {
+    currentViewRequestId = id;
+    const r = STORES.requests.find(x => x.id == id);
+    if (!r) return;
+    
+    const hackathon = STORES.hackathons.find(h => h.title === r.event);
+    const hackathonDate = hackathon ? hackathon.deadline : 'TBD';
+    
+    const teammatesHtml = r.team.length === 0 
+        ? 'None (Solo Submission)'
+        : r.team.map(tm => `${getStudentName(tm)} (${tm})`).join('<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+    
+    const letterHtml = `
+        <div class="letter-date">Date: ${formatDate(r.date)}</div>
+        <p>To,<br>The Head of Department,<br>Department of ${r.dept},<br>Vasavi College of Engineering (VCE).</p>
+        <p>Respected Sir/Madam,</p>
+        <div class="letter-subject">Subject: Request for permission to participate in ${r.event}</div>
+        <p>We, the students from ${r.year}, Department of ${r.dept}, humbly request your permission to officially participate in the technical event, <strong>${r.event}</strong>.</p>
+        <p><strong>Primary Participant:</strong> ${r.studentName} (${r.rollNo})<br>
+        <strong>Team Members:</strong> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${teammatesHtml}</p>
+        <p><strong>Hackathon Date:</strong> ${formatDate(hackathonDate)}</p>
+        <p>This event will greatly enhance our technical skills and provide practical industry exposure. We assure you that we will cover up any missed academic work during the duration of the event.</p>
+        <p>Thanking you,</p>
+        <p>Yours sincerely,<br><strong>${r.studentName}</strong><br>${r.rollNo}</p>
+    `;
+    
+    document.getElementById('coord-letter-content').innerHTML = letterHtml;
+    openModal('coord-letter-modal');
 }
 
 // --- HOD PORTAL ---
@@ -865,25 +986,23 @@ function HODDashboardView() {
         </div>
 
         <div class="two-col-grid" style="grid-template-columns: 1fr 1fr;">
-            <div class="card">
+            <div class="card" style="min-height: 400px;">
                 <h3 class="mb-4"><i class='bx bx-trending-up text-primary'></i> Cohort Demographic Dispersion</h3>
                 ${yearBars}
             </div>
             
-            <div class="d-flex flex-column gap-3">
-                <div class="card" style="flex: 1; max-height: 300px; overflow-y: auto;">
-                    <h3 class="mb-4"><i class='bx bx-history text-muted'></i> Real-Time Audit Feed</h3>
-                    <div style="padding-top: 10px;">${recentActivity}</div>
-                </div>
-                
-                <div class="card" style="background: rgba(210, 153, 34, 0.05); border-color: rgba(210, 153, 34, 0.3);">
-                    <h3 class="mb-3"><i class='bx bx-message-square-edit text-warning'></i> Broadcast Directive to Coordinators</h3>
-                    <div class="form-group">
-                        <textarea id="hod-feedback" class="form-control" rows="3" placeholder="Enter formal instructions regarding policy changes..." style="background: rgba(0,0,0,0.3); border-color: rgba(210, 153, 34, 0.2);"></textarea>
-                    </div>
-                    <button class="btn-primary w-100" style="background: var(--warning); color: black;" onclick="sendFeedback()"><i class='bx bx-send'></i> Transmit Directive</button>
-                </div>
+            <div class="card" style="min-height: 400px; display: flex; flex-direction: column;">
+                <h3 class="mb-3"><i class='bx bx-history text-muted'></i> Real-Time Audit Feed</h3>
+                <div style="flex: 1; overflow-y: auto;">${recentActivity}</div>
             </div>
+        </div>
+        
+        <div class="card mt-4" style="background: rgba(210, 153, 34, 0.05); border-color: rgba(210, 153, 34, 0.3);">
+            <h3 class="mb-3"><i class='bx bx-message-square-edit text-warning'></i> Broadcast Directive to Coordinators</h3>
+            <div class="form-group">
+                <textarea id="hod-feedback" class="form-control" rows="3" placeholder="Enter formal instructions regarding policy changes..." style="background: rgba(0,0,0,0.3); border-color: rgba(210, 153, 34, 0.2);"></textarea>
+            </div>
+            <button class="btn-primary w-100" style="background: var(--warning); color: black;" onclick="sendFeedback()"><i class='bx bx-send'></i> Transmit Directive</button>
         </div>
     `;
 }
@@ -894,6 +1013,285 @@ function sendFeedback() {
     STORES.feedbacks.unshift({ msg, date: new Date().toISOString() });
     showToast('Directive transmitted successfully over secure channel!', 'success');
     document.getElementById('hod-feedback').value = '';
+}
+
+// --- ATTENDANCE MANAGER PORTAL ---
+let currentFilterYearAM = 'All';
+let currentFilterDeptAM = 'All';
+
+function setAttendanceTab(tab) {
+    attendanceActiveTab = tab;
+    render();
+}
+
+function AttendanceManagerDashboardView() {
+    // Get all approved students (including team members) - ONLY APPROVED
+    const approvedStudents = [];
+    STORES.requests.forEach(r => {
+        if (r.status === 'Approved') {
+            // Calculate year from roll number
+            const calculatedYear = getYearFromRoll(r.rollNo);
+            // Get hackathon deadline date
+            const hackathon = STORES.hackathons.find(h => h.title === r.event);
+            const hackathonDate = hackathon ? hackathon.deadline : r.date;
+            
+            // Add primary student
+            approvedStudents.push({
+                name: r.studentName,
+                rollNo: r.rollNo,
+                year: calculatedYear,
+                dept: r.dept,
+                event: r.event,
+                date: hackathonDate,
+                isTeamMember: false
+            });
+            // Add team members with calculated year
+            r.team.forEach(tmRoll => {
+                approvedStudents.push({
+                    name: getStudentName(tmRoll),
+                    rollNo: tmRoll,
+                    year: getYearFromRoll(tmRoll),
+                    dept: r.dept,
+                    event: r.event,
+                    date: hackathonDate,
+                    isTeamMember: true
+                });
+            });
+        }
+    });
+
+    // Get unique years and departments
+    const years = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
+    const departments = [...new Set(approvedStudents.map(s => s.dept))].sort();
+
+    // Filter students
+    let filteredStudents = approvedStudents;
+    if (currentFilterYearAM !== 'All') {
+        filteredStudents = filteredStudents.filter(s => s.year === currentFilterYearAM);
+    }
+    if (currentFilterDeptAM !== 'All') {
+        filteredStudents = filteredStudents.filter(s => s.dept === currentFilterDeptAM);
+    }
+
+    // Statistics
+    const totalApproved = approvedStudents.length;
+    const byYear = {};
+    years.forEach(y => {
+        byYear[y] = approvedStudents.filter(s => s.year === y).length;
+    });
+    const byDept = {};
+    departments.forEach(d => {
+        byDept[d] = approvedStudents.filter(s => s.dept === d).length;
+    });
+
+    let contentHtml = '';
+
+    if (attendanceActiveTab === 'overview') {
+        // Overview with statistics cards
+        const yearStatsCards = years.map(y => `
+            <div class="stat-card">
+                <span class="stat-title">${y}</span>
+                <span class="stat-value text-primary">${byYear[y] || 0}</span>
+            </div>
+        `).join('');
+
+        const deptStatsCards = departments.map(d => `
+            <div class="stat-card">
+                <span class="stat-title">${d}</span>
+                <span class="stat-value text-primary">${byDept[d] || 0}</span>
+            </div>
+        `).join('');
+
+        // Group students by Year and Department
+        let groupedHtml = '';
+        years.forEach(year => {
+            const studentsInYear = approvedStudents.filter(s => s.year === year);
+            if (studentsInYear.length > 0) {
+                groupedHtml += `<div class="mb-4">
+                    <h4 class="text-primary mb-3"><i class='bx bx-calendar'></i> ${year} (${studentsInYear.length} students)</h4>`;
+                
+                departments.forEach(dept => {
+                    const studentsInDept = studentsInYear.filter(s => s.dept === dept);
+                    if (studentsInDept.length > 0) {
+                        const studentRows = studentsInDept.map(s => `
+                            <tr>
+                                <td><strong>${s.name}</strong></td>
+                                <td class="text-primary">${s.rollNo}</td>
+                                <td>${s.event}</td>
+                                <td><span class="badge badge-info">${s.dept}</span></td>
+                                <td>${formatDate(s.date)}</td>
+                            </tr>
+                        `).join('');
+                        
+                        groupedHtml += `
+                            <div class="card mb-3" style="margin-left: 1rem;">
+                                <h5 class="mb-2" style="color: var(--text-light);">${dept} Department (${studentsInDept.length})</h5>
+                                <table class="table table-sm">
+                                    <thead><tr><th>Name</th><th>Roll No</th><th>Event</th><th>Dept</th><th>Hackathon Date</th></tr></thead>
+                                    <tbody>${studentRows}</tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+                });
+                groupedHtml += `</div>`;
+            }
+        });
+
+        contentHtml = `
+            <div class="stats-grid mb-4">
+                <div class="stat-card" style="border-bottom: 3px solid var(--primary)">
+                    <span class="stat-title">Total Approved Students</span>
+                    <span class="stat-value text-primary">${totalApproved}</span>
+                </div>
+                <div class="stat-card" style="border-bottom: 3px solid var(--success)">
+                    <span class="stat-title">Departments</span>
+                    <span class="stat-value text-success">${departments.length}</span>
+                </div>
+            </div>
+            
+            <h3 class="mb-3"><i class='bx bx-group'></i> Students by Year & Department</h3>
+            <p class="text-muted mb-3" style="font-size: 0.9rem;"><i class='bx bx-info-circle'></i> Mark attendance on the hackathon dates shown below.</p>
+            ${groupedHtml || '<p class="text-muted">No approved students found.</p>'}
+        `;
+    } else if (attendanceActiveTab === 'list') {
+        // Detailed list view with filters and download
+        const studentRows = filteredStudents.map(s => `
+            <tr>
+                <td><strong>${s.name}</strong></td>
+                <td class="text-primary">${s.rollNo}</td>
+                <td>${s.year}</td>
+                <td><span class="badge badge-info">${s.dept}</span></td>
+                <td>${s.event}</td>
+                <td>${formatDate(s.date)}</td>
+            </tr>
+        `).join('') || `<tr><td colspan="6" class="text-center text-muted" style="padding: 2rem;">No students match the selected filters.</td></tr>`;
+
+        contentHtml = `
+            <div class="card mb-4">
+                <div class="d-flex justify-between align-center mb-4">
+                    <h3 class="m-0"><i class='bx bx-list-ul text-primary'></i> Approved Students List</h3>
+                    <div class="d-flex gap-2 align-center">
+                        <select id="filter-year-am" class="form-control" style="width:auto; padding:0.4rem; font-size: 0.9rem;" onchange="updateFiltersAM()">
+                            <option value="All" ${currentFilterYearAM === 'All' ? 'selected' : ''}>All Years</option>
+                            ${years.map(y => `<option value="${y}" ${currentFilterYearAM === y ? 'selected' : ''}>${y}</option>`).join('')}
+                        </select>
+                        <select id="filter-dept-am" class="form-control" style="width:auto; padding:0.4rem; font-size: 0.9rem;" onchange="updateFiltersAM()">
+                            <option value="All" ${currentFilterDeptAM === 'All' ? 'selected' : ''}>All Departments</option>
+                            ${departments.map(d => `<option value="${d}" ${currentFilterDeptAM === d ? 'selected' : ''}>${d}</option>`).join('')}
+                        </select>
+                        <button class="btn-primary" style="padding: 0.4rem 1rem;" onclick="downloadApprovedList()">
+                            <i class='bx bx-download'></i> Download CSV
+                        </button>
+                    </div>
+                </div>
+                <p class="text-muted mb-3" style="font-size: 0.85rem;"><i class='bx bx-info-circle'></i> Mark attendance on the hackathon dates shown below.</p>
+                <div class="table-responsive" style="max-height: 500px; overflow-y:auto">
+                    <table class="table">
+                        <thead style="position: sticky; top: 0; background: var(--surface); z-index: 1;">
+                            <tr><th>Name</th><th>Roll No</th><th>Year</th><th>Department</th><th>Event</th><th>Hackathon Date</th></tr>
+                        </thead>
+                        <tbody>${studentRows}</tbody>
+                    </table>
+                </div>
+                <div class="mt-3 text-muted" style="font-size: 0.85rem;">
+                    Showing ${filteredStudents.length} of ${totalApproved} approved students
+                </div>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="dashboard-header mb-0">
+            <div>
+                <h2>Attendance Manager Portal</h2>
+                <p class="text-muted">Track and manage approved student attendance records.</p>
+            </div>
+        </div>
+
+        <div class="tabs-container mt-4">
+            <button class="tab-btn ${attendanceActiveTab === 'overview' ? 'active' : ''}" onclick="setAttendanceTab('overview')">
+                <i class='bx bx-pie-chart-alt'></i> Overview (By Year/Dept)
+            </button>
+            <button class="tab-btn ${attendanceActiveTab === 'list' ? 'active' : ''}" onclick="setAttendanceTab('list')">
+                <i class='bx bx-list-ul'></i> Full List & Download
+            </button>
+        </div>
+
+        ${contentHtml}
+    `;
+}
+
+function updateFiltersAM() {
+    currentFilterYearAM = document.getElementById('filter-year-am').value;
+    currentFilterDeptAM = document.getElementById('filter-dept-am').value;
+    render();
+}
+
+function downloadApprovedList() {
+    // Get all approved students (including team members)
+    const approvedStudents = [];
+    STORES.requests.forEach(r => {
+        if (r.status === 'Approved') {
+            approvedStudents.push({
+                name: r.studentName,
+                rollNo: r.rollNo,
+                year: getYearFromRoll(r.rollNo),
+                dept: r.dept,
+                event: r.event,
+                date: formatDate(r.date)
+            });
+            r.team.forEach(tmRoll => {
+                approvedStudents.push({
+                    name: getStudentName(tmRoll),
+                    rollNo: tmRoll,
+                    year: getYearFromRoll(tmRoll),
+                    dept: r.dept,
+                    event: r.event,
+                    date: formatDate(r.date)
+                });
+            });
+        }
+    });
+
+    // Apply filters
+    let filteredStudents = approvedStudents;
+    if (currentFilterYearAM !== 'All') {
+        filteredStudents = filteredStudents.filter(s => s.year === currentFilterYearAM);
+    }
+    if (currentFilterDeptAM !== 'All') {
+        filteredStudents = filteredStudents.filter(s => s.dept === currentFilterDeptAM);
+    }
+
+    // Create CSV content
+    const headers = ['Name', 'Roll Number', 'Year', 'Department', 'Event', 'Hackathon Date'];
+    const csvRows = [headers.join(',')];
+    
+    filteredStudents.forEach(s => {
+        csvRows.push([
+            `"${s.name}"`,
+            s.rollNo,
+            `"${s.year}"`,
+            `"${s.dept}"`,
+            `"${s.event}"`,
+            s.date
+        ].join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `approved_students_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast(`Downloaded ${filteredStudents.length} student records as CSV`, 'success');
 }
 
 // --- INIT ---
