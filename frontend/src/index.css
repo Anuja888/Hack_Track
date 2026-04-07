@@ -1,16 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap');
 
 :root {
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --secondary: #ec4899;
-  --surface: rgba(17, 24, 39, 0.7);
-  --background: #0f172a;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --danger: #ef4444;
-  --success: #10b981;
+  --background: #0d1117;
+  --surface: #161b22;
+  --surface-glass: rgba(22, 27, 34, 0.7);
   --border: rgba(255, 255, 255, 0.1);
+  --primary: #58a6ff;
+  --primary-hover: #3182ce;
+  --secondary: #8b949e;
+  --success: #2ea043;
+  --warning: #d29922;
+  --danger: #f85149;
+  --text-main: #c9d1d9;
+  --text-muted: #8b949e;
+  --text-light: #ffffff;
+  --gradient-1: linear-gradient(135deg, #58a6ff 0%, #bc8cff 100%);
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
   --glass: blur(12px);
 }
 
@@ -21,14 +27,17 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background: var(--background);
+  font-family: var(--font-body);
+  background-color: var(--background);
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
-  background-image: 
-    radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.15), transparent 25%);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text-light);
+  font-weight: 600;
 }
 
 /* Glassmorphism Classes */
