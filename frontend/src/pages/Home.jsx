@@ -5,12 +5,25 @@ import { Code2, LogIn, LayoutDashboard } from 'lucide-react';
 import FlashNews from '../components/FlashNews';
 import { AuthContext } from '../context/AuthContext';
 
+const DEFAULT_HACKATHONS = [
+  { _id: '1', title: 'Global AI Innovators 2026', domain: 'AI/ML', prize: '$15,000', deadline: '2026-05-15', desc: 'Build next-gen AI agents to solve real-world problems. Open to all domains.' },
+  { _id: '2', title: 'Web3 Builders Summit', domain: 'Blockchain', prize: '$10,000', deadline: '2026-05-20', desc: 'Create decentralized applications for the modern web economy.' },
+  { _id: '3', title: 'CyberDefend 2026', domain: 'Cybersecurity', prize: '$8,000', deadline: '2026-05-25', desc: '48-hour CTF to find and patch vulnerabilities.' },
+  { _id: '4', title: 'AppBrew Mobile 2026', domain: 'Mobile Dev', prize: '$12,000', deadline: '2026-06-01', desc: 'Develop impactful mobile applications for social good.' },
+  { _id: '5', title: 'EcoTech Challenge', domain: 'Sustainability', prize: '$7,500', deadline: '2026-06-10', desc: 'Build tech solutions for climate change and environmental protection.' },
+  { _id: '6', title: 'FinTech Revolution', domain: 'Finance', prize: '$20,000', deadline: '2026-06-15', desc: 'Innovative solutions for banking, payments, and financial inclusion.' },
+  { _id: '7', title: 'HealthTech Innovators', domain: 'Healthcare', prize: '$9,000', deadline: '2026-06-20', desc: 'Technology solutions for better healthcare delivery.' },
+  { _id: '8', title: 'GameDev Arena', domain: 'Gaming', prize: '$5,000', deadline: '2026-06-25', desc: 'Build immersive games using any engine or technology.' }
+];
+
 const Home = () => {
-  const [hackathons, setHackathons] = useState([]);
+  const [hackathons, setHackathons] = useState(DEFAULT_HACKATHONS);
   const { token } = React.useContext(AuthContext);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/hackathons').then(res => setHackathons(res.data)).catch(err => console.error(err));
+    axios.get('http://localhost:5000/api/hackathons')
+      .then(res => { if (res.data.length > 0) setHackathons(res.data); })
+      .catch(err => { console.log('Using default hackathons'); });
   }, []);
 
   return (

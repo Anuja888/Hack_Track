@@ -35,10 +35,14 @@ const STUDENT_DB = {
 
 const STORES = {
     hackathons: [
-        { id: 1, title: 'Global AI Hackathon', domain: 'AI/ML', prize: '$10,000', deadline: '2026-04-10', desc: 'Build the next generation of AI agents to solve real-world problems.' },
-        { id: 2, title: 'Web3 Innovators', domain: 'Blockchain', prize: '$5,000', deadline: '2026-04-15', desc: 'Create decentralized applications for the modern web.' },
-        { id: 3, title: 'CyberDefend 2026', domain: 'Cybersecurity', prize: '$8,000', deadline: '2026-04-20', desc: 'Find vulnerabilities and patch them in this 48hr CTF.' },
-        { id: 4, title: 'AppBrew 2026', domain: 'Mobile Dev', prize: '$15,000', deadline: '2026-05-01', desc: 'Develop impactful mobile software.' }
+        { id: 1, title: 'Global AI Innovators 2026', domain: 'AI/ML', prize: '$15,000', deadline: '2026-05-15', desc: 'Build next-gen AI agents to solve real-world problems. Open to all domains.' },
+        { id: 2, title: 'Web3 Builders Summit', domain: 'Blockchain', prize: '$10,000', deadline: '2026-05-20', desc: 'Create decentralized applications for the modern web economy.' },
+        { id: 3, title: 'CyberDefend 2026', domain: 'Cybersecurity', prize: '$8,000', deadline: '2026-05-25', desc: '48-hour CTF to find and patch vulnerabilities.' },
+        { id: 4, title: 'AppBrew Mobile 2026', domain: 'Mobile Dev', prize: '$12,000', deadline: '2026-06-01', desc: 'Develop impactful mobile applications for social good.' },
+        { id: 5, title: 'EcoTech Challenge', domain: 'Sustainability', prize: '$7,500', deadline: '2026-06-10', desc: 'Build tech solutions for climate change and environmental protection.' },
+        { id: 6, title: 'FinTech Revolution', domain: 'Finance', prize: '$20,000', deadline: '2026-06-15', desc: 'Innovative solutions for banking, payments, and financial inclusion.' },
+        { id: 7, title: 'HealthTech Innovators', domain: 'Healthcare', prize: '$9,000', deadline: '2026-06-20', desc: 'Technology solutions for better healthcare delivery.' },
+        { id: 8, title: 'GameDev Arena', domain: 'Gaming', prize: '$5,000', deadline: '2026-06-25', desc: 'Build immersive games using any engine or technology.' }
     ],
     requests: [
         { id: 101, studentName: 'ANUJA KUCHIPUDI', rollNo: '1602-24-737-004', year: '1st Year', dept: 'IT', event: 'Global AI Hackathon', status: 'Pending', date: '2026-03-20', team: [], attendance: 'Queued' },
@@ -55,7 +59,7 @@ const STORES = {
 
 let currentUser = null;
 let activeRoleTab = 'student';
-let currentView = 'login'; 
+let currentView = 'landing'; 
 let studentActiveTab = 'dashboard';
 let coordActiveTab = 'inbox';
 let attendanceActiveTab = 'overview';
@@ -162,11 +166,59 @@ function getLeaderboard() {
 }
 
 
+// --- LANDING VIEW (Public - before login) ---
+function LandingView() {
+    const hackCards = STORES.hackathons.map(h => `
+        <div class="hackathon-card">
+            <div class="hack-header">
+                <span class="hack-domain">${h.domain}</span>
+                <span class="hack-prize"><i class='bx bx-trophy'></i> ${h.prize}</span>
+            </div>
+            <h3 class="hack-title">${h.title}</h3>
+            <p class="hack-desc">${h.desc}</p>
+            <div class="hack-footer">
+                <span class="hack-deadline"><i class='bx bx-time-five'></i> ${formatDate(h.deadline)}</span>
+            </div>
+        </div>
+    `).join('');
+
+    return `
+        <div class="landing-container">
+            <nav class="navbar">
+                <div class="nav-brand">
+                    <i class='bx bx-code-block text-gradient'></i>
+                    <span>HackTrack <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); letter-spacing: 1px;">| VCE</span></span>
+                </div>
+                <button class="btn-primary" style="width: auto; padding: 0.5rem 1.5rem;" onclick="showLogin()">Login</button>
+            </nav>
+            <div class="landing-hero">
+                <div class="hero-content">
+                    <h1>Vasavi College of Engineering</h1>
+                    <h2 class="text-gradient">HackTrack Platform</h2>
+                    <p>Centralized Hackathon Participation Portal</p>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Browse hackathons, form teams, andtrack your achievements.</p>
+                </div>
+            </div>
+            <div class="main-content">
+                <h3 class="mb-3">Live Hackathons</h3>
+                <div class="hackathon-grid mb-4">${hackCards}</div>
+            </div>
+        </div>
+    `;
+}
+
+function showLogin() {
+    currentView = 'login';
+    render();
+}
+
 // --- ROUTER ---
 function render() {
     const app = document.getElementById('app');
     
-    if (currentView === 'login') {
+    if (currentView === 'landing') {
+        app.innerHTML = LandingView();
+    } else if (currentView === 'login') {
         app.innerHTML = LoginView();
         attachLoginListeners();
     } else {

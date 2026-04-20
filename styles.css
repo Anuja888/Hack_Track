@@ -717,6 +717,33 @@ h1, h2, h3, h4, h5, h6 {
     gap: 1.5rem;
 }
 
+/* Landing Page */
+.landing-container {
+    min-height: 100vh;
+}
+
+.landing-hero {
+    background: radial-gradient(circle at center, #1f242e 0%, #0d1117 100%);
+    padding: 4rem 5% 2rem;
+    text-align: center;
+}
+
+.hero-content h1 {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.hero-content h2 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.hero-content p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
 @media (max-width: 768px) {
     .two-col-grid {
         grid-template-columns: 1fr;
