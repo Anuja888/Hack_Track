@@ -71,6 +71,16 @@ async function seed() {
     });
     await coord2.save();
 
+    // Attendance Gate Control
+    const attendanceUser = new User({
+      username: 'attendance1',
+      name: 'Attendance Desk Guard',
+      role: 'attendance',
+      password: hashedPassword,
+      department: 'IT'
+    });
+    await attendanceUser.save();
+
     // 10 Students
     const studentsData = [
       { roll: '1602-24-737-001', name: 'AKSHAYA BHOOMIREDDY', batch: 2024 },

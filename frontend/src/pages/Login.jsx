@@ -104,7 +104,7 @@ const Login = () => {
           </form>
         </motion.div>
 
-        {/* Right Side: Recruiter Quick Access Guide */}
+        {/* Right Side: Demo Logins Guide */}
         <motion.div
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }}
@@ -113,10 +113,10 @@ const Login = () => {
           style={{ width: '100%', maxWidth: '480px', padding: '2.5rem', flex: '1 1 400px', borderLeft: '3px solid var(--primary)' }}
         >
           <h3 className="mb-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-light)' }}>
-            <Sparkles size={20} color="var(--primary)" /> Recruiter Quick Access
+            <Sparkles size={20} color="var(--primary)" /> Demo Logins
           </h3>
           <p className="text-muted" style={{ fontSize: '0.85rem', marginBottom: '1.5rem', lineHeight: '1.4' }}>
-            This portal manages hackathon credentials. Click any role card below to instantly auto-fill credentials, log in, and explore the custom endpoints.
+            Explore the different portals of the platform. Click any card below to instantly auto-fill credentials, log in, and view their dashboard capabilities.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -155,6 +155,26 @@ const Login = () => {
                 className="btn-primary" 
                 style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', whiteSpace: 'nowrap', width: 'auto', fontWeight: 'bold' }}
                 onClick={() => handleAutoFillAndLogin('coordinator', 'coordinator1', 'vce')}
+              >
+                1-Click Login
+              </button>
+            </motion.div>
+
+            {/* Attendance Gate Control Card */}
+            <motion.div 
+              whileHover={{ scale: 1.02, y: -2, boxShadow: '0 8px 25px rgba(255, 255, 255, 0.08)', borderColor: 'rgba(255, 255, 255, 0.2)' }}
+              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', transition: 'border-color 0.2s' }}
+            >
+              <div style={{ flex: 1 }}>
+                <span className="badge" style={{ fontSize: '0.7rem', display: 'inline-block', marginBottom: '0.25rem', background: 'rgba(255,255,255,0.08)', color: 'var(--text-light)' }}>Attendance Desk</span>
+                <strong style={{ display: 'block', color: 'white', fontSize: '0.95rem' }}>Attendance Guard (attendance1)</strong>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '4px', lineHeight: '1.3' }}>Quick search registrations by roll number and toggle checked-in attendance status.</span>
+              </div>
+              <button 
+                type="button"
+                className="btn-primary" 
+                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', whiteSpace: 'nowrap', width: 'auto', background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 'bold' }}
+                onClick={() => handleAutoFillAndLogin('attendance', 'attendance1', 'vce')}
               >
                 1-Click Login
               </button>
