@@ -308,11 +308,12 @@ const StudentDashboard = ({ user, token, hackathons, requests, teamPosts, fetchD
               
               {viewLetterPreview && (
                  <div style={{ flex: 1.5 }}>
-                   <div style={{ position: 'relative', height: '100%', pointerEvents: 'none' }}>
+                   <div style={{ position: 'relative', height: '100%' }}>
                      <LetterPreviewModal 
                        request={{ event: applyModalOpen, year: appYear, dept: appDept, studentName: user.name, rollNo: user.username, team: teamMembers, date: new Date() }}
                        hackathon={hackathons.find(h => h.title === applyModalOpen)}
                        onClose={() => {}}
+                       isInline={true}
                      />
                    </div>
                  </div>
