@@ -121,11 +121,14 @@ const Login = () => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {/* HOD Card */}
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+            <motion.div 
+              whileHover={{ scale: 1.02, y: -2, boxShadow: '0 8px 25px rgba(210, 153, 34, 0.12)', borderColor: 'rgba(210, 153, 34, 0.3)' }}
+              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', transition: 'border-color 0.2s' }}
+            >
               <div style={{ flex: 1 }}>
                 <span className="badge badge-warning" style={{ fontSize: '0.7rem', display: 'inline-block', marginBottom: '0.25rem' }}>Admin / HOD</span>
-                <strong style={{ display: 'block', color: 'white', fontSize: '0.9rem' }}>Dr. Ram Mohan Rao</strong>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Approves proposed events, broadcasts directives, and reviews institutional audit charts.</span>
+                <strong style={{ display: 'block', color: 'white', fontSize: '0.95rem' }}>Dr. Ram Mohan Rao</strong>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '4px', lineHeight: '1.3' }}>Approves proposed events, broadcasts directives, and reviews institutional audit charts.</span>
               </div>
               <button 
                 type="button"
@@ -135,14 +138,17 @@ const Login = () => {
               >
                 1-Click Login
               </button>
-            </div>
+            </motion.div>
 
             {/* Coordinator Card */}
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+            <motion.div 
+              whileHover={{ scale: 1.02, y: -2, boxShadow: '0 8px 25px rgba(88, 166, 255, 0.12)', borderColor: 'rgba(88, 166, 255, 0.3)' }}
+              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', transition: 'border-color 0.2s' }}
+            >
               <div style={{ flex: 1 }}>
                 <span className="badge badge-primary" style={{ fontSize: '0.7rem', display: 'inline-block', marginBottom: '0.25rem' }}>Organizer / Coordinator</span>
-                <strong style={{ display: 'block', color: 'white', fontSize: '0.9rem' }}>Prof. K. Laxmi (coordinator1)</strong>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Publishes new hackathons, approves student requests, advances attendance, and issues PDF certs.</span>
+                <strong style={{ display: 'block', color: 'white', fontSize: '0.95rem' }}>Prof. K. Laxmi (coordinator1)</strong>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '4px', lineHeight: '1.3' }}>Publishes new hackathons, approves student requests, advances attendance, and issues PDF certs.</span>
               </div>
               <button 
                 type="button"
@@ -152,14 +158,17 @@ const Login = () => {
               >
                 1-Click Login
               </button>
-            </div>
+            </motion.div>
 
             {/* Student Card */}
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+            <motion.div 
+              whileHover={{ scale: 1.02, y: -2, boxShadow: '0 8px 25px rgba(46, 160, 67, 0.12)', borderColor: 'rgba(46, 160, 67, 0.3)' }}
+              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', transition: 'border-color 0.2s' }}
+            >
               <div style={{ flex: 1 }}>
                 <span className="badge badge-success" style={{ fontSize: '0.7rem', display: 'inline-block', marginBottom: '0.25rem' }}>Participant / Student</span>
-                <strong style={{ display: 'block', color: 'white', fontSize: '0.9rem' }}>Anuja Kuchipudi (1602-24-737-004)</strong>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Forms teams, submits applications, views attendance steppers, and downloads official PDFs.</span>
+                <strong style={{ display: 'block', color: 'white', fontSize: '0.95rem' }}>Anuja Kuchipudi (1602-24-737-004)</strong>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '4px', lineHeight: '1.3' }}>Forms teams, submits applications, views attendance steppers, and downloads official PDFs.</span>
               </div>
               <button 
                 type="button"
@@ -169,7 +178,7 @@ const Login = () => {
               >
                 1-Click Login
               </button>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
       </div>
