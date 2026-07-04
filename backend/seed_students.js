@@ -1,0 +1,76 @@
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const User = require('./models/User');
+const bcrypt = require('bcryptjs');
+
+dotenv.config();
+
+const STUDENT_DB = {
+    // 1st Year (2025 Batch)
+    "1602-25-737-001": "AARAV REDDY KOTHAPALLI", "1602-25-737-002": "ANANYA SREE GUDIPATI", "1602-25-737-003": "ABHINAV KUMAR REDDY",
+    "1602-25-737-004": "AMRUTHA LAKSHMI PONNALA", "1602-25-737-005": "ARJUN VARMA THOTA",
+    "1602-25-737-006": "BHAVYA SRI MANDADI", "1602-25-737-007": "CHANDANA REDDY KASIREDDY", "1602-25-737-008": "DARSHAN KUMAR YADAV",
+    "1602-25-737-009": "DIVYA SAI NALLAGATLA", "1602-25-737-010": "DHEERAJ REDDY BANDI",
+    "1602-25-737-011": "ESHWAR SAI GADDAM", "1602-25-737-012": "FARHAN AHMED SHAIK", "1602-25-737-013": "GAYATHRI DEVI KALYAN",
+    "1602-25-737-014": "HARSHITH KUMAR JONNALAGADDA", "1602-25-737-015": "HIMA BINDU VEMULA",
+    
+    // 2nd Year (2024 Batch)
+    "1602-24-737-001": "AKSHAYA BHOOMIREDDY", "1602-24-737-002": "AKSHITH RAJ JAGGAIAH GARI", "1602-24-737-003": "AKULA SATHWIK",
+    "1602-24-737-004": "ANUJA KUCHIPUDI", "1602-24-737-005": "ANUSH KOMURAVELLI", "1602-24-737-006": "ASHRITA MANDADI",
+    "1602-24-737-007": "ASHRITH KAVETI", "1602-24-737-008": "AVANEESH NAGLOORI", "1602-24-737-009": "BALU NAYAK ESLAVATH",
+    "1602-24-737-010": "BLESSY EPPA", "1602-24-737-011": "CHARAN PUTTI", "1602-24-737-012": "DESHINA SHREERAMULU",
+    "1602-24-737-013": "DHRITI LAKSHMI BONTALA", "1602-24-737-014": "GANESH SANDYAPAGA", "1602-24-737-015": "HASINI GANDI",
+    "1602-24-737-016": "HRITHIK TADEPALLI", "1602-24-737-017": "JAYARAM GOURISHETTI", "1602-24-737-018": "JAYAVENKAT ARYAN GURJALA",
+    "1602-24-737-019": "JOSHITA BONDA", "1602-24-737-020": "JOSHINAVI KANNEBOINA", "1602-24-737-021": "KARTHIK DHOUNABOINA",
+    "1602-24-737-022": "KARUNA SREE GUMMADI", "1602-24-737-023": "LOHITH SORAPALLI", "1602-24-737-024": "MANASWITI SOMANGARI",
+    "1602-24-737-025": "MANGI BAI", "1602-24-737-026": "MD ASAF IBRAHIM", "1602-24-737-027": "MOHAMMED ABDUL SAMEE",
+    "1602-24-737-028": "MOHAMMED KASHIF", "1602-24-737-029": "MOHAN AKHIL BHEEMAVARAPU", "1602-24-737-030": "NISHANTH NAIDU POLA",
+    "1602-24-737-031": "PABBARAJA SRIRAGHAVA", "1602-24-737-032": "PRANUTHI MEDE", "1602-24-737-033": "PURVI REDDY CHINAGANTA",
+    "1602-24-737-034": "RAHUL RAMAVATH", "1602-24-737-035": "RAHUL SRIGIRI", "1602-24-737-036": "RAHUL VADTHYAVATH",
+    "1602-24-737-037": "RAKESH GOUD EDIGI", "1602-24-737-038": "RAM CHARAN R RAMISETTY", "1602-24-737-039": "RAMCHARAN GUGULOTH",
+    "1602-24-737-040": "REVANTH LINGAMPALLY", "1602-24-737-041": "RISHANTH ROUTHU", "1602-24-737-042": "SAI KISHOR PATHLAVATH",
+    "1602-24-737-043": "SAI KUMAR VADTHYA", "1602-24-737-044": "SAI SRI MADHURIMA DAYAKA", "1602-24-737-045": "SAI THEJA REDDY PATLOLLA",
+    "1602-24-737-046": "SANDHYA LUNAVATH", "1602-24-737-047": "SATHWIK BHUSHAN A", "1602-24-737-048": "SHAIK SHARF UDDIN",
+    "1602-24-737-049": "SHARANYA MOGULLA", "1602-24-737-050": "SHASHIDHAR REDDY B", "1602-24-737-051": "SHIVA SAI KOLLA",
+    "1602-24-737-052": "SHOAIB ARSLAN SYED", "1602-24-737-053": "SHREYA VEERAGANDHAM", "1602-24-737-054": "SHRUTHIKA VORUGANTI",
+    "1602-24-737-055": "SIDDARTHA GOUD E", "1602-24-737-056": "SREERAM VARUN SHARMA A S", "1602-24-737-057": "SRICHARAN KYASA",
+    "1602-24-737-058": "SRISHANTH NARWADE", "1602-24-737-059": "SURYA CHANDAN LANDE", "1602-24-737-060": "TEJESHVAR KONKA",
+    "1602-24-737-061": "VAISHNAV TADAKAM ADLA", "1602-24-737-062": "VARSHINI CHILUKURU", "1602-24-737-063": "VENKATA NESHYA SRI MEKALA",
+    "1602-24-737-064": "YAMINI BANGI"
+};
+
+async function seed() {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('vce', salt);
+    
+    // Prep payload array
+    const users = [];
+    for (const [roll, name] of Object.entries(STUDENT_DB)) {
+        let batchYear = null;
+        if (roll.match(/^1602-\d{2}-/)) {
+            batchYear = 2000 + parseInt(roll.split('-')[1]);
+        }
+        users.push({
+            username: roll,
+            name: name,
+            role: 'student',
+            password: hashedPassword,
+            batchYear,
+            department: 'IT'
+        });
+    }
+
+    // Upsert so we don't duplicate existing manually created accounts
+    for (const u of users) {
+        await User.updateOne({ username: u.username }, { $set: u }, { upsert: true });
+    }
+    console.log(`Successfully seeded ${users.length} students to MongoDB!`);
+    process.exit();
+  } catch(e) {
+    console.error(e);
+    process.exit(1);
+  }
+}
+seed();
